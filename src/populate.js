@@ -1,6 +1,5 @@
+/* eslint-disable */
 const fs = require('fs');
-const mongoose = require('mongoose');
-
 let savedPosts = null;
 
 const Post = require('./post.js');
@@ -14,18 +13,27 @@ const readPosts = () => {
   return savedPosts;
 };
 
-mongoose
-  .connect('mongodb://localhost/so-posts')
-  .then(() => {
-    Post.create(readPosts())
-      .then(() => {
-        console.log('population succedded');
-        mongoose.disconnect();
-      })
-      .catch(error => {
-        console.error('population failed');
-      });
-  })
-  .catch(error => {
-    console.error('database connection failed');
-  });
+const populatePosts = () => {
+  // TODO: implement this
+ readPosts();
+  
+
+
+  return new Promise((resolve, reject) =>{ 
+    const p = savedPosts.map( ob => 
+      { 
+        //console.log("ob",ob);
+        return new Post(ob).save();
+       }); 
+       Promise.all(p) 
+       .then(post => {  
+        resolve(post); 
+        }) 
+        .catch( err => { 
+          reject(err);
+         }) 
+        });
+
+};
+
+module.exports = { readPosts, populatePosts };
